@@ -59,13 +59,14 @@ public class BankingController {
         for (Customer cust : customerList) {
             for(Account acct : cust.getAccounts()) {
                 if(accountNum.equals(acct.getAccountNum())) {
-//                    delAcct = acct;
                     accountRepo.delete(acct);
+                    cust.setAccounts(null);
+                    customerRepo.saveAll(customerList);
                     return ResponseEntity.ok(acct);
                 }
             }
         }
-        return ResponseEntity.ok(delAcct);
+        return ResponseEntity.internalServerError().build();
     }
 
     public Long generateUUIDNo() {

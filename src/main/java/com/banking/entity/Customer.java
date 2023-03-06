@@ -26,7 +26,7 @@ public class Customer implements Serializable {
 
     String email;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch =  FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch =  FetchType.EAGER)
     @JoinColumn(name = "cust_id", referencedColumnName = "custId")
     List<Account> accounts;
 }
