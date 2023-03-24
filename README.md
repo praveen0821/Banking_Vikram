@@ -36,3 +36,9 @@
 
 #6. GET (Get account of a particular account): localhost:8080/get/account?accountNum={27119728627}
 
+#7. PUT (Withdraw amount from the account): localhost:8080/banking/withdraw?withdrawAmount=10&accountNum=91603512227
+
+#8. PUT (Deposit amount to the account): localhost:8080/banking/deposit?depositAmount=100&accountNum=91603512227
+
+#Swagger Ui url:
+http://localhost:8080/swagger-ui/index.html
