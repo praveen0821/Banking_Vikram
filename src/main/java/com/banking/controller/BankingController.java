@@ -47,10 +47,10 @@ public class BankingController {
 
     @PostMapping("/account")
     public ResponseEntity<Customer> createCustAcct(@RequestBody @Validated Customer customer) throws BadRequestException {
-        customer.getAccounts().get(0).setAccountNum(generateUUIDNo());
         if(depositLimit < customer.getAccounts().get(0).getBalanceAmt()) {
             throw new BadRequestException("Deposit amount should be less than Rs.10000.0 per transaction.", HttpStatus.BAD_REQUEST);
         }
+        customer.getAccounts().get(0).setAccountNum(generateUUIDNo());
         Customer response = customerRepo.save(customer);
         return ResponseEntity.ok(response);
     }
