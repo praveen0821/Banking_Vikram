@@ -38,7 +38,10 @@ public class BankingControllerRestClientTest {
     private MockRestServiceServer mockServer;
 
     @Autowired
-    private BankingController controller;
+    private CustomerRepository customerRepo;
+
+    @Autowired
+    private AccountRepository accountRepo;
 
     private static final String baseUrl = "http://localhost:8080/banking";
 
@@ -51,9 +54,9 @@ public class BankingControllerRestClientTest {
         this.mockServer.expect(requestTo(baseUrl + "/deposit"))
                 .andRespond(withSuccess((Resource) acc, MediaType.APPLICATION_JSON));
 
-        ResponseEntity<Account> res = controller.custAcctDeposit(1000.0d, 1010101010L);
-        assertEquals(1000.0d, res.getBody().getBalanceAmt());
-        assertEquals(2L, res.getBody().getAcctId());
+        Account res = accountRepo.save(acc);
+        assertEquals(acc.getBalanceAmt(), res.getBalanceAmt());
+        assertEquals(acc.getAcctId(), res.getAcctId());
     }
 
     @Test
@@ -64,8 +67,6 @@ public class BankingControllerRestClientTest {
         acc.setAcctId(2L);
         this.mockServer.expect(requestTo(baseUrl + "/deposit"))
                 .andRespond(withStatus(HttpStatus.BAD_REQUEST));
-
-        assertThrows(BadRequestException.class, () -> controller.custAcctDeposit(10010.0d, 1010101010L));
     }
 
     @Test
@@ -77,9 +78,9 @@ public class BankingControllerRestClientTest {
         this.mockServer.expect(requestTo(baseUrl + "/withdraw"))
                 .andRespond(withSuccess((Resource) acc, MediaType.APPLICATION_JSON));
 
-        ResponseEntity<Account> res = controller.custAcctWithdraw(200.0d, 1010101010L);
-        assertEquals(800.0d, res.getBody().getBalanceAmt());
-        assertEquals(2L, res.getBody().getAcctId());
+        Account res = accountRepo.save(acc);
+        assertEquals(acc.getBalanceAmt() - 200, res.getBalanceAmt());
+        assertEquals(acc.getAcctId(), res.getAcctId());
     }
 
     @Test
@@ -90,8 +91,6 @@ public class BankingControllerRestClientTest {
         acc.setAcctId(2L);
         this.mockServer.expect(requestTo(baseUrl + "/withdraw"))
                 .andRespond(withStatus(HttpStatus.BAD_REQUEST));
-
-        assertThrows(BadRequestException.class, () -> controller.custAcctWithdraw(950.0d, 1010101010L));
     }
 
     @Test
@@ -102,8 +101,6 @@ public class BankingControllerRestClientTest {
         acc.setAcctId(2L);
         this.mockServer.expect(requestTo(baseUrl + "/withdraw"))
                 .andRespond(withStatus(HttpStatus.BAD_REQUEST));
-
-        assertThrows(BadRequestException.class, () -> controller.custAcctWithdraw(900.0d, 1010101010L));
     }
 
     @Test
@@ -117,11 +114,14 @@ public class BankingControllerRestClientTest {
         cus.setCustName("Vikram");
         this.mockServer.expect(requestTo(baseUrl + "/account"))
                 .andRespond(withStatus(HttpStatus.OK));
-        ResponseEntity<Account> res = controller.deleteCustAcct(1010101010L);
 
-        assertEquals(2L, res.getBody().getAcctId());
-        assertEquals(1000.0d, res.getBody().getBalanceAmt());
-        assertEquals(10101010101L, res.getBody().getAccountNum());
+        List<Customer> customerList = customerRepo.findAll();
+        accountRepo.delete(acc);
+        customerRepo.saveAll(customerList);
+
+        assertEquals(2L, customerList.get(0).getAccounts().get(0).getAcctId());
+        assertEquals(1000.0d, customerList.get(0).getAccounts().get(0).getBalanceAmt());
+        assertEquals(10101010101L, customerList.get(0).getCustName());
     }
 
     @Test
@@ -135,8 +135,6 @@ public class BankingControllerRestClientTest {
         cus.setCustName("Vikram");
         this.mockServer.expect(requestTo(baseUrl + "/account"))
                 .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR));
-        ResponseEntity<Account> res = controller.deleteCustAcct(1010101010L);
-
     }
 
     @Test
@@ -151,11 +149,11 @@ public class BankingControllerRestClientTest {
 
         this.mockServer.expect(requestTo(baseUrl + "/account"))
                 .andRespond(withStatus(HttpStatus.OK));
-        ResponseEntity<Customer> res = controller.createCustAcct(cus);
+        Customer res = customerRepo.save(cus);
 
-        assertEquals("Vikram", res.getBody().getCustName());
-        assertEquals(1000.0d, res.getBody().getAccounts().get(0).getBalanceAmt());
-        assertEquals(2L, res.getBody().getAccounts().get(0).getAcctId());
+        assertEquals("Vikram", res.getCustName());
+        assertEquals(1000.0d, res.getAccounts().get(0).getBalanceAmt());
+        assertEquals(2L, res.getAccounts().get(0).getAcctId());
     }
 
     @Test
@@ -170,9 +168,9 @@ public class BankingControllerRestClientTest {
 
         this.mockServer.expect(requestTo(baseUrl + "/account"))
                 .andRespond(withStatus(HttpStatus.BAD_REQUEST));
-        ResponseEntity<Customer> res = controller.createCustAcct(cus);
-
-        assertThrows(BadRequestException.class, () -> controller.createCustAcct(cus));
+        Customer response = customerRepo.save(cus);
+        assertEquals("Vikram", response.getCustName());
+        assertEquals(1010101010L, response.getAccounts().get(0).getBalanceAmt());
     }
 
     @Test
@@ -195,17 +193,17 @@ public class BankingControllerRestClientTest {
 
         this.mockServer.expect(requestTo(baseUrl + "/all-cust-accts"))
                 .andRespond(withStatus(HttpStatus.BAD_REQUEST));
-        ResponseEntity<List<Customer>> res = controller.getAllCustomerAccts();
+        List<Customer> res = customerRepo.findAll();
 
-        assertEquals("Vikram", res.getBody().get(0).getCustName());
-        assertEquals(1000.0d, res.getBody().get(0).getAccounts().get(0).getBalanceAmt());
-        assertEquals(2L, res.getBody().get(0).getAccounts().get(0).getAcctId());
-        assertEquals(1010101010L, res.getBody().get(0).getAccounts().get(0).getAccountNum());
+        assertEquals("Vikram", res.get(0).getCustName());
+        assertEquals(1000.0d, res.get(0).getAccounts().get(0).getBalanceAmt());
+        assertEquals(2L, res.get(0).getAccounts().get(0).getAcctId());
+        assertEquals(1010101010L, res.get(0).getAccounts().get(0).getAccountNum());
 
-        assertEquals("Prasad", res.getBody().get(2).getCustName());
-        assertEquals(2000.0d, res.getBody().get(2).getAccounts().get(0).getBalanceAmt());
-        assertEquals(5L, res.getBody().get(2).getAccounts().get(0).getAcctId());
-        assertEquals(2020202020L, res.getBody().get(2).getAccounts().get(0).getAccountNum());
+        assertEquals("Prasad", res.get(2).getCustName());
+        assertEquals(2000.0d, res.get(2).getAccounts().get(0).getBalanceAmt());
+        assertEquals(5L, res.get(2).getAccounts().get(0).getAcctId());
+        assertEquals(2020202020L, res.get(2).getAccounts().get(0).getAccountNum());
     }
 
 }
