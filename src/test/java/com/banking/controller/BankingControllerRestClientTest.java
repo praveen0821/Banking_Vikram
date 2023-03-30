@@ -23,7 +23,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 @ExtendWith(MockitoExtension.class)
-@RestClientTest({BankingController.class, CustomerRepository.class, AccountRepository.class})
+@RestClientTest({CustomerRepository.class, AccountRepository.class})
 public class BankingControllerRestClientTest {
     @Autowired
     private MockRestServiceServer mockServer;
