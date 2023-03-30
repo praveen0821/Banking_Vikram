@@ -46,7 +46,7 @@ public class BankingControllerRestClientTest {
     private static final String baseUrl = "http://localhost:8080/banking";
 
     @Test
-    public void depositAmountTest() throws BadRequestException {
+    public void depositAmountTest() {
         Account acc = new Account();
         acc.setAccountNum(1010101010L);
         acc.setBalanceAmt(1000.0d);
@@ -60,7 +60,7 @@ public class BankingControllerRestClientTest {
     }
 
     @Test
-    public void depositAmountLimitExceptionTest() throws BadRequestException {
+    public void depositAmountLimitExceptionTest() {
         Account acc = new Account();
         acc.setAccountNum(1010101010L);
         acc.setBalanceAmt(1000.0d);
@@ -70,7 +70,7 @@ public class BankingControllerRestClientTest {
     }
 
     @Test
-    public void withdrawAmountTest() throws BadRequestException {
+    public void withdrawAmountTest() {
         Account acc = new Account();
         acc.setAccountNum(1010101010L);
         acc.setBalanceAmt(1000.0d);
@@ -84,7 +84,7 @@ public class BankingControllerRestClientTest {
     }
 
     @Test
-    public void withdrawAmountLimitExceptionTest() throws BadRequestException {
+    public void withdrawAmountLimitExceptionTest() {
         Account acc = new Account();
         acc.setAccountNum(1010101010L);
         acc.setBalanceAmt(1000.0d);
@@ -94,7 +94,7 @@ public class BankingControllerRestClientTest {
     }
 
     @Test
-    public void withdrawAmountMoreThan90PercentExceptionTest() throws BadRequestException {
+    public void withdrawAmountMoreThan90PercentExceptionTest() {
         Account acc = new Account();
         acc.setAccountNum(1010101010L);
         acc.setBalanceAmt(1000.0d);
@@ -138,7 +138,7 @@ public class BankingControllerRestClientTest {
     }
 
     @Test
-    public void createAccount() throws BadRequestException {
+    public void createAccountTest() {
         Account acc = new Account();
         acc.setAccountNum(1010101010L);
         acc.setBalanceAmt(1000.0d);
@@ -157,7 +157,7 @@ public class BankingControllerRestClientTest {
     }
 
     @Test
-    public void createAccountDepositAmtLimitException() throws BadRequestException {
+    public void createAccountDepositAmtLimitExceptionTest() {
         Account acc = new Account();
         acc.setAccountNum(1010101010L);
         acc.setBalanceAmt(10050.0d);
